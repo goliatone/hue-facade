@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+'use strict';
+
+var hue = require('hue-sdk');
+
+var client = new hue.Hue({
+    host:     '10.31.75.5',
+    user: '1bf65ff514536e0e70a846a26cacb459',
+});
+
+client.group(0, function (err, attr) {
+    if (err) throw err;
+    console.log('ATTR:', attr);
+    on();
+});
+
+function on(){
+    console.log('on');
+    var payload = doHSBtoHue([0, 0.58, 0.84], 50, true);
+
+    client.request({
+        path: '/groups/0/action',
+        method: 'PUT',
+        data: payload
+    }, onDone);
+}
+
+function onDone(err, res){
+    console.log('onDone');
+    if(err) return console.error(err);
+    console.log(res);
+    var t = setTimeout(off, 5000);
+}
+
+function off(){
+    console.log('off');
+    var payload = doHSBtoHue([0, 0.58, 0.1], 40, false);
+
+    client.request({
+        path: '/groups/0/action',
+        method: 'PUT',
+        data: payload
+    }, offDone);
+}
+
+function offDone(err, res){
+    console.log('offDone');
+    if(err) return console.error(err);
+    console.log(res);
+    var t = setTimeout(on, 4000);
+}
+
+
+function doHSBtoHue(hsbval, time, on){
+    var h = Math.floor(hsbval[0] * 65535),
+        s = Math.floor(hsbval[1] * 255),
+        b = Math.floor(hsbval[1] * 255);
+
+    return {
+        "on": on,
+        "sat": s,
+        "bri": b,
+        "hue": h,
+        "transitiontime": time
+    };
+}
+
+
