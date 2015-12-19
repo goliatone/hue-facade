@@ -1,0 +1,26 @@
+{
+  "name": "hue-facade",
+  "version": "0.0.1",
+  "description": "Phillips hue controller for breathing facade",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goliatone/hue-facade.git"
+  },
+  "keywords": [
+    "hue"
+  ],
+  "author": "goliatone",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/goliatone/hue-facade/issues"
+  },
+  "homepage": "https://github.com/goliatone/hue-facade#readme",
+  "dependencies": {
+    "hue-sdk": "0.0.1",
+    "huejay": "^0.15.2"
+  }
+}
