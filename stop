@@ -1,0 +1,6 @@
+#! /bin/bash
+PID=$(sed -n 1p pyworkderpid)
+echo "sending SIGINT to process $PID"
+kill -SIGINT $PID
+
+rm pyworkderpid
