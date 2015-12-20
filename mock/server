@@ -3,14 +3,18 @@
 
 var express = require('express');
 var app = express(),
+    bodyParser = require('body-parser'),
     program = require('commander');
 
 program
     .option('-p, --port <int>', 'Port number', 3030);
 
 
-app.get('/api/:clientid/groups/0/action', function (req, res) {
-    console.log('req');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.put('/api/:clientid/groups/0/action', function (req, res) {
+    console.log('req', req.originalUrl, req.body, req.params);
     res.send([{'success': true}]);
 });
 
