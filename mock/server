@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+'use strict';
+
+var express = require('express');
+var app = express(),
+    program = require('commander');
+
+program
+    .option('-p, --port <int>', 'Port number', 3030);
+
+
+app.get('/api/:clientid/groups/0/action', function (req, res) {
+    console.log('req');
+    res.send([{'success': true}]);
+});
+
+
+var server = app.listen(program.port, function () {
+    var host = server.address().address,
+        port = server.address().port;
+
+    console.log('Hue mock server listening at http://%s:%s', host, port);
+});
