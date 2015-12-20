@@ -1,0 +1,17 @@
+{
+    "bridges": [
+        {
+            "id": "4th-floor",
+            "host": "192.168.23.44",
+            "user": "ab3d5ff534536e0370a843a26ca3b459"
+        }
+    ],
+    "options":{
+        "offDelay": 4000,
+        "onDelay": 5000,
+        "onParams": [0, 0.58, 1],
+        "onTransitionTime": 50,
+        "offParams": [0, 0.3, 0],
+        "offTransitionTime": 40
+    }
+}
