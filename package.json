@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/goliatone/hue-facade#readme",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "commander": "^2.9.0",
+    "debug": "^2.2.0",
     "express": "^4.13.3",
     "gextend": "^0.1.6",
     "grunt-cli": "^0.1.13",
