@@ -3,22 +3,39 @@
 
 var Client = require('../lib/client'),
     config = require('../config/hue-facade.json'),
-    clients = [], _client;
+    extend = require('gextend'),
+    clients = [],
+    _client;
 
-//Initialize clients
+
+var defaults = config.options;
+
+/*
+ * Initialize clients:
+ */
 config.bridges.map(function(bridge){
-    _client = new Client(bridge);
-    process.nextTick(_client.start.bind(_client));
+    //merge bridge config to default options.
+    var opts = extend({}, defaults, bridge);
+    _client = new Client(opts);
+
     clients.push(_client);
+
+    //push all bridges to start on next frame
+    process.nextTick(_client.start.bind(_client));
 });
 
-//--expose_gc => global.gc()
 
-//PM2_KILL_TIMEOUT=60000 pm2 start ./bin/worker --name hue-worker
-//pm2 sendSignal SIGINT 0|hue-worker <= pm2 will actually restart if we exit.
-//pm2 stop 0|hue-worker will send SIGINT and not restart.
+/**
+ * Handle SIGINT, either sent with CTR + C
+ * or by a process manager like `pm2`.
+ * We want to turn off all lights before
+ * exiting.
+ *
+ * `pm2 stop 0` will send a `SIGINT`.
+ */
 process.on('SIGINT', function(){
 
+    //TODO: We should do a promise all.
     clients.map(function(client){
         client.stop();
         _client = client;
@@ -31,9 +48,4 @@ process.on('SIGINT', function(){
         console.error('ERROR ON EXIT', err.message);
         process.exit(1);
     });
-
-    // process.nextTick(function(){
-    //     console.log('CLEAN EXIT');
-    //     process.exit(0);
-    // });
 });
