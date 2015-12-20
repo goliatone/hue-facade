@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/goliatone/hue-facade#readme",
   "dependencies": {
-    "hue-sdk": "0.0.1",
-    "huejay": "^0.15.2"
+    "express": "^4.13.3",
+    "request-promise": "^1.0.2"
   }
 }
