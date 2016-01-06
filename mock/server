@@ -13,6 +13,9 @@ program
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
+//TODO: Create middleware that if DEBUG would randomly generate
+//500s.
 app.put('/api/:clientid/groups/0/action', function (req, res) {
     console.log('-------', req.body.on ? '': 'OFF');
     console.log('req', req.originalUrl, req.body, req.params);
