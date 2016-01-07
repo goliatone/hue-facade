@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 'use strict';
 
+var configFile = process.argv[2] || 'hue-facade';
+
 var Client = require('../lib/client'),
-    config = require('../config/hue-facade.json'),
+    config = require('../config/' + configFile + '.json'),
     extend = require('gextend'),
     clients = [],
-    _client;
+    _floor;
 
 
-var defaults = config.options;
+var defaults = config.options,
+    delay = config.delay || 0;
 
 /*
  * Initialize clients:
@@ -16,12 +19,26 @@ var defaults = config.options;
 config.bridges.map(function(bridge){
     //merge bridge config to default options.
     var opts = extend({}, defaults, bridge);
-    _client = new Client(opts);
 
-    clients.push(_client);
+    // opts.onDelay = opts.onDelay * (opts.index + 1);
+    // opts.offDelay = opts.offDelay * (opts.index + 1);
+
+    opts.onDelay = opts.onDelay + (opts.index * 1000);
+    opts.offDelay = opts.offDelay + (opts.index * 1000);
+
+    console.log('FL', bridge.id, opts.onDelay, opts.offDelay);
+
+    _floor = new Client(opts);
+
+    clients.push(_floor);
+
+    //If we did not define an index, we make it 0
+    bridge.index = bridge.index || 0;
 
     //push all bridges to start on next frame
-    process.nextTick(_client.start.bind(_client));
+    if(delay) _floor.off(true, 0);
+    else setTimeout(_floor.start.bind(_floor), delay * bridge.index);
+    // setTimeout(_floor.start.bind(_floor), delay * bridge.index);
 });
 
 
@@ -38,10 +55,10 @@ process.on('SIGINT', function(){
     //TODO: We should do a promise all.
     clients.map(function(client){
         client.stop();
-        _client = client;
+        _floor = client;
     });
 
-    _client.stop().then(function(){
+    _floor.stop().then(function(){
         console.log('CLEAN EXIT');
         process.exit(0);
     }).catch(function(err){
