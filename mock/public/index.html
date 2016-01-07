@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Matrix</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+    <div id="canvas"/>
+
+</body>
+<script src="/javascripts/svg.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var rows = 4,
+    cols = 16,
+    matrix = {};
+
+var h = 60,
+    w = 40,
+    ox = 5,
+    oy = 8;
+
+var draw = SVG('canvas').size(w * cols + (ox * cols), h * rows + (oy * rows));
+
+var rect = draw.defs().rect(w, h).attr({ fill: 'white' }),
+    building = {},
+    group;
+
+matrix = new Array(rows);
+for(var i = 0; i < rows; i++){
+    matrix[i] = new Array(cols);
+    group = draw.group();
+    for(var j = 0; j < cols; j++){
+        // var use = draw.use(rect).move(j * (w + ox), i * (h + oy));
+        var use = draw.rect(w, h).attr({ fill: 'white' });
+        use.move(j * (w + ox), i * (h + oy));
+        group.add(use);
+        matrix[i][j] = use;
+    }
+    building[i] = group;
+}
+
+
+function updateGroup(options){
+    window.matrix[options.index].map(function(cell){
+        cell.animate({
+            duration: options.transitiontime * 100
+        }).attr({
+            fill: '#ff9933',
+            'fill-opacity': options.bri / 255
+        });
+    });
+}
+
+function showGroup(index, on){
+    window.matrix[index].map(function(cell){
+        on ? cell.show() : cell.hide();
+    });
+}
+
+window.matrix = matrix;
+window.building = building;
+window.updateGroup = updateGroup;
+
+// window.matrix.map(function(e, i){
+//     window.showGroup(i, false);
+// });
+
+</script>
+<script>
+    var socket = io.connect('http://localhost:3030');
+    socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('my other event', { my: 'data' });
+    });
+    socket.on('groups', function(data){
+        console.log('UPDATE GROUP', data.action, data.index, data.transitiontime/10);
+        window.showGroup(data.index, data.on);
+        // if(!data.on) return;
+        window.updateGroup(data);
+    });
+</script>
+</html>
+
