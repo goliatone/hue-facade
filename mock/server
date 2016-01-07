@@ -3,15 +3,45 @@
 
 var express = require('express');
 var app = express(),
+    server = require('http').Server(app),
     bodyParser = require('body-parser'),
-    program = require('commander');
+    program = require('commander'),
+    path = require('path');
 
 program
     .option('-p, --port <int>', 'Port number', 3030);
 
 
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+server.listen(program.port);
+server.on('error', function onError(e){
+    console.error('ERROR', e.message);
+});
+
+server.on('listening', function onListening(){
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+
+    console.log('Listening on ' + bind);
+});
+
+var io = require('socket.io')(server);
+
+io.on('connection', function (socket) {
+    socket.emit('news', { hello: 'world' });
+    socket.on('my other event', function (data) {
+        console.log(data);
+    });
+});
 
 
 //TODO: Create middleware that if DEBUG would randomly generate
@@ -19,14 +49,6 @@ app.use(bodyParser.json());
 app.put('/api/:clientid/groups/0/action', function (req, res) {
     console.log('-------', req.body.on ? '': 'OFF');
     console.log('req', req.originalUrl, req.body, req.params);
-
     res.send([{'success': true}]);
-});
-
-
-var server = app.listen(program.port, function () {
-    var host = server.address().address,
-        port = server.address().port;
-
-    console.log('Hue mock server listening at http://%s:%s', host, port);
+    io.emit('groups', req.body);
 });
